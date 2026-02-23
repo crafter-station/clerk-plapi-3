@@ -28,16 +28,12 @@ function proxyMiddleware(req: any) {
   return null
 }
 
-const clerkHandler = clerkMiddleware()
-
-export default function middleware(req: any) {
+export default clerkMiddleware((auth, req) => {
   const proxyResponse = proxyMiddleware(req)
   if (proxyResponse) {
     return proxyResponse
   }
-
-  return clerkHandler(req)
-}
+})
 
 export const config = {
   matcher: [
