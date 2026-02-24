@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 import { clerkMiddleware } from '@clerk/nextjs/server'
 
-function proxyMiddleware(req: any) {
-  if (req.nextUrl.pathname.match('__clerk')) {
+function proxyFrontendApi(req: NextRequest) {
+  if (req.nextUrl.pathname.startsWith('/__clerk')) {
     const proxyHeaders = new Headers(req.headers)
     proxyHeaders.set('Clerk-Proxy-Url', process.env.NEXT_PUBLIC_CLERK_PROXY_URL || '')
     proxyHeaders.set('Clerk-Secret-Key', process.env.CLERK_SECRET_KEY || '')
@@ -28,12 +28,16 @@ function proxyMiddleware(req: any) {
   return null
 }
 
-export default clerkMiddleware((auth, req) => {
-  const proxyResponse = proxyMiddleware(req)
+export default function proxy(req: NextRequest) {
+  // First check if it's a proxy request
+  const proxyResponse = proxyFrontendApi(req)
   if (proxyResponse) {
     return proxyResponse
   }
-})
+
+  // Otherwise, use Clerk's middleware
+  return clerkMiddleware()(req, {} as any)
+}
 
 export const config = {
   matcher: [
