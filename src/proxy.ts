@@ -6,11 +6,7 @@ function proxyFrontendApi(req: NextRequest) {
     const proxyHeaders = new Headers(req.headers)
     proxyHeaders.set('Clerk-Proxy-Url', process.env.NEXT_PUBLIC_CLERK_PROXY_URL || '')
     proxyHeaders.set('Clerk-Secret-Key', process.env.CLERK_SECRET_KEY || '')
-    if (req.ip) {
-      proxyHeaders.set('X-Forwarded-For', req.ip)
-    } else {
-      proxyHeaders.set('X-Forwarded-For', req.headers.get('X-Forwarded-For') || '')
-    }
+    proxyHeaders.set('X-Forwarded-For', req.headers.get('X-Forwarded-For') || '')
 
     const proxyUrl = new URL(req.url)
     proxyUrl.host = 'frontend-api.clerk.dev'
